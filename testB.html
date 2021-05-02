@@ -57,8 +57,11 @@
       let snowman;
       let dz = 0.01;  // How much more the snowman is tilting each iteration
       let floorMesh;
+      let wallMesh1, wallMesh2, wallMesh3, wallMesh4;
       const FLOOR_WIDTH = 120;  // The dimensions of the floor
       const FLOOR_DEPTH = 120;
+      const WALL_WIDTH = 120;
+      const WALL_HEIGHT = 120;
 
       let moveForward = false;
       let moveBackward = false;
@@ -86,6 +89,9 @@
 
           // Create the floor
           createFloor(scene)
+
+          //Create the walls
+          createWalls(scene);
           
           // Set up lighting
           setupLighting(scene)
@@ -241,6 +247,71 @@
           floorMesh.receiveShadow = true;      // ADDITION 4: The floor can RECEIVE shadows (that is, it shows shadows on it)
           parent.add(floorMesh);
       }
+      function createWalls(parent) {
+        const marbleTexture = new THREE.TextureLoader().load(
+          "textures/white-marble.jpg"
+        );
+        marbleTexture.repeat = new THREE.Vector2(
+          FLOOR_WIDTH / 10,
+          FLOOR_DEPTH / 10
+        ); // Repeat the texture in both the width and depth directions
+        marbleTexture.wrapS = THREE.MirroredRepeatWrapping; // When repeating, wrapped but alternate by mirroring (avoids edges)
+        marbleTexture.wrapT = THREE.RepeatWrapping; // Did not use mirror wrapping here, so you can look at the seam that is created. (Perhaps you want it, perhaps not!)
+
+        const wall1 = new THREE.PlaneGeometry(
+          WALL_WIDTH,
+          WALL_HEIGHT,
+          10 * WALL_WIDTH,
+          10 * WALL_HEIGHT
+        );
+        const wall2 = new THREE.PlaneGeometry(
+          WALL_WIDTH,
+          WALL_HEIGHT,
+          10 * WALL_WIDTH,
+          10 * WALL_HEIGHT
+        );
+        const wall3 = new THREE.PlaneGeometry(
+          WALL_WIDTH,
+          WALL_HEIGHT,
+          10 * WALL_WIDTH,
+          10 * WALL_HEIGHT
+        );
+        const wall4 = new THREE.PlaneGeometry(
+          WALL_WIDTH,
+          WALL_HEIGHT,
+          10 * WALL_WIDTH,
+          10 * WALL_HEIGHT
+        );
+        // const mat = new THREE.MeshBasicMaterial({ map: marbleTexture});
+        const mat = new THREE.MeshPhongMaterial({
+          color: 0x808080, // reflectivity for diffuse and ambient light
+          emissive: 0x010101, // emission color; a very small amount of red (in case my lighting is not working really)
+          specular: 0x101010, // reflectivity for specular light
+          shininess: 100, // controls size of specular highlights
+          map: marbleTexture,
+        });
+        wallMesh1 = new THREE.Mesh(wall1, mat);
+        wallMesh2 = new THREE.Mesh(wall2, mat);
+        wallMesh3 = new THREE.Mesh(wall3, mat);
+        wallMesh4 = new THREE.Mesh(wall4, mat);
+        wallMesh1.rotation.x = -50;
+        wallMesh1.rotation.z = -50;
+        wallMesh2.rotation.x = 50;
+        wallMesh2.rotation.z = -50;
+        wallMesh3.rotation.x = 100;
+        //wallMesh3.rotation.z = -50;
+        wallMesh4.rotation.x = -100;
+        //wallMesh4.rotation.z = -50;
+        wallMesh1.receiveShadow = true; // ADDITION 4: The floor can RECEIVE shadows (that is, it shows shadows on it)
+        wallMesh2.receiveShadow = true; // ADDITION 4: The floor can RECEIVE shadows (that is, it shows shadows on it)
+        wallMesh3.receiveShadow = true; // ADDITION 4: The floor can RECEIVE shadows (that is, it shows shadows on it)
+        wallMesh4.receiveShadow = true; // ADDITION 4: The floor can RECEIVE shadows (that is, it shows shadows on it)
+        parent.add(wallMesh1);
+        parent.add(wallMesh2);
+        parent.add(wallMesh3);
+        parent.add(wallMesh4);
+      }
+
       
       function createSnowman(parent) {
           // The holder for our snowman object
