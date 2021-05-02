@@ -61,6 +61,9 @@
       const FLOOR_DEPTH = 200;
       const WALL_HEIGHT = 200;
       const WALL_WIDTH = 120;
+      const TABLE_HEIGHT = 2;
+      const TABLE_WIDTH = 20;
+      const TABLE_DEPTH = 20;
 
       let moveForward = false;
       let moveBackward = false;
@@ -77,14 +80,28 @@
       function init() {
           // Create and set up the camera
 	  camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
-	  camera.position.z = 60;
-          camera.position.y = 5.5;
+	  camera.position.z = 100;
+          camera.position.y = 20;
 
           // Create and set up the Scene
 	  scene = new THREE.Scene();
 
           // A simple snowman
           //createSnowman(scene)
+          //create ball
+          createBall(scene);
+
+          //create dice
+          createDice(scene);
+
+          //create lamp
+          createLamp(scene);
+
+          //create picture frame
+          createPicture(scene);
+
+          //create table
+          createTable(scene);
 
           // Create the floor
           createFloor(scene);
@@ -186,7 +203,7 @@
 	  } );
       }
       
-      function setupLighting(parent) {
+        function setupLighting(parent) {
           var x;
           for (x = -10; x <= 10; x += 10) {
               var lightColor = 0xcccc99
@@ -208,8 +225,141 @@
               var lightMesh = new THREE.Mesh( geometry, mat );
               lightMesh.position.set(x, 20, 0);
               parent.add(lightMesh);
-          }
-      }
+
+            }
+        }
+
+        function createDice(parent){
+            var materialArray = [];
+                materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'textures/dice1.jpg' ) }));
+                materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'textures/dice2.jpg' ) }));
+                materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'textures/dice3.jpg' ) }));
+                materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'textures/dice4.jpg' ) }));
+                materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'textures/dice5.jpg' ) }));
+                materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'textures/dice6.jpg' ) }));
+                
+            var DiceMaterial = new THREE.MeshFaceMaterial(materialArray);
+            
+                // MeshFaceMaterial is now called MultiMaterial
+                var DiceGeometry = new THREE.BoxGeometry( .5, .5, .5, 1, 1, 1 );
+                var Dice = new THREE.Mesh( DiceGeometry, DiceMaterial );
+                var Dice2 = new THREE.Mesh( DiceGeometry, DiceMaterial );
+                Dice.position.set(-3, 11.5, 0);
+                Dice2.position.set(-5, 11.5, 2);
+                parent.add( Dice ); 
+                parent.add( Dice2 );
+
+        }
+
+
+        function createLamp(parent){
+            const lampTexture = new THREE.TextureLoader().load('textures/download.jpg')
+                lampTexture.repeat = new THREE.Vector2(TABLE_WIDTH/10, TABLE_DEPTH/10); 
+                lampTexture.wrapS = THREE.MirroredRepeatWrapping; 
+                lampTexture.wrapT = THREE.RepeatWrapping;
+
+            const lampBaseGeometry = new THREE.CylinderGeometry( .5, 5, 2, 50 );
+            const lampStemGeometry = new THREE.CylinderGeometry( .5, .5, 8, 10);
+            const lampShadeGeometry = new THREE.CylinderGeometry( 1, 4, 5, 50);
+            
+            const material = new THREE.MeshBasicMaterial( {
+                    roughness: 0.8,
+					color: 0xffffff,
+					metalness: 0.2,
+					bumpScale: 0.0005,
+                    map: lampTexture    } );
+            
+             const lampLight = new THREE.MeshBasicMaterial( {
+                    roughness: 0.8,
+					color: 0xffffff,
+					metalness: 0.2,
+					bumpScale: 0.0005 } );
+
+
+            const lampBase = new THREE.Mesh( lampBaseGeometry, material );
+            lampBase.position.set(5, 11, 5);
+            const lampStem = new THREE.Mesh( lampStemGeometry, material );
+            lampStem.position.set(5, 15, 5);
+            const lampShade = new THREE.Mesh( lampShadeGeometry, lampLight);
+            lampShade.position.set(5, 20, 5);
+
+            parent.add( lampBase );
+            parent.add( lampStem );
+            parent.add( lampShade );
+
+        }
+
+        function createPicture(parent){
+            const marbleTexture = new THREE.TextureLoader().load('textures/white-marble.jpg');
+            marbleTexture.repeat = new THREE.Vector2(TABLE_WIDTH/10, TABLE_DEPTH/10); 
+            marbleTexture.wrapS = THREE.MirroredRepeatWrapping; 
+            marbleTexture.wrapT = THREE.RepeatWrapping;
+
+            const pirateTexture = new THREE.TextureLoader().load('textures/pirate.jpg');
+
+            const frameGeometry1 = new THREE.BoxGeometry( 2, 20, 20 );
+            const pictureGeometry = new THREE.BoxGeometry( 2.1, 18, 18 );
+
+            const material = new THREE.MeshBasicMaterial( {
+                    roughness: 0.8,
+					color: 0x966F33,
+					metalness: 0.2,
+					bumpScale: 0.0005,
+                    map: marbleTexture    } );
+
+            const pictureMaterial = new THREE.MeshBasicMaterial( {
+                    roughness: 0.8,
+					metalness: 0.2,
+					bumpScale: 0.0005,
+                    map: pirateTexture    } );
+
+            const pictureFrame = new THREE.Mesh( frameGeometry1, material );
+            pictureFrame.position.set(100, 50, 0);
+            const picture = new THREE.Mesh( pictureGeometry, pictureMaterial);
+            picture.position.set(100, 50, 0);
+
+            parent.add( pictureFrame );
+            parent.add( picture )
+
+       }
+
+       function createTable(parent) {
+            const marbleTexture = new THREE.TextureLoader().load('textures/white-marble.jpg');
+            marbleTexture.repeat = new THREE.Vector2(TABLE_WIDTH/10, TABLE_DEPTH/10); 
+            marbleTexture.wrapS = THREE.MirroredRepeatWrapping; 
+            marbleTexture.wrapT = THREE.RepeatWrapping;
+            
+            const tableTopGeometry = new THREE.BoxGeometry( TABLE_WIDTH, TABLE_HEIGHT, TABLE_DEPTH );
+            const tableLeg1Geo = new THREE.BoxGeometry( TABLE_HEIGHT, TABLE_WIDTH/2, TABLE_HEIGHT );
+            const tableLeg2Geo = new THREE.BoxGeometry( TABLE_HEIGHT, TABLE_WIDTH/2, TABLE_HEIGHT );
+            const tableLeg3Geo = new THREE.BoxGeometry( TABLE_HEIGHT, TABLE_WIDTH/2, TABLE_HEIGHT );
+            const tableLeg4Geo = new THREE.BoxGeometry( TABLE_HEIGHT, TABLE_WIDTH/2, TABLE_HEIGHT );
+
+            const material = new THREE.MeshBasicMaterial( {
+                    roughness: 0.8,
+					color: 0x966F33,
+					metalness: 0.2,
+					bumpScale: 0.0005,
+                    map: marbleTexture    } );
+
+            const tableTop = new THREE.Mesh( tableTopGeometry, material );
+            tableTop.position.set(0, 10, 0);
+            const tableLeg1 = new THREE.Mesh( tableLeg1Geo, material );
+            tableLeg1.position.set(7, 5, 7);
+            const tableLeg2 = new THREE.Mesh( tableLeg2Geo, material );
+            tableLeg2.position.set(-7, 5, 7);
+            const tableLeg3 = new THREE.Mesh( tableLeg3Geo, material );
+            tableLeg3.position.set(-7, 5, -7);
+            const tableLeg4 = new THREE.Mesh( tableLeg4Geo, material );
+            tableLeg4.position.set(7, 5, -7);
+
+            parent.add( tableTop );
+            parent.add( tableLeg1 );
+            parent.add( tableLeg2 );
+            parent.add( tableLeg3 );
+            parent.add( tableLeg4 ); 
+
+       }
 
       // Create a floor and add it to the parent object
       function createFloor(parent) {
@@ -291,21 +441,16 @@
       }
       
       function createBall(parent) {
-          // Create the Sphere Geometry
-          const geometry = new THREE.SphereGeometry(50, 20, 20);
+            const geometry = new THREE.SphereGeometry( .3, 32, 32 );
+            const material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+            const sphere = new THREE.Mesh( geometry, material );
+            const sphere2 = new THREE.Mesh( geometry, material );
 
-          // Set the material property for the ball
-          const mat = new THREE.MeshPhongMaterial( {
-              color: 0x808080,     // reflectivity for diffuse and ambient light
-              emissive: 0x200000,  // emission color; a very small amount of red (in case my lighting is not working really)
-              specular: 0x828282,  // reflectivity for specular light
-              shininess: 100       // controls size of specular highlights
-          } );
-          
-          // Create the mesh and add it to the scene
-          //   We are making the ballMesh global so it can be altered by animation
-          ballMesh = new THREE.Mesh( geometry, mat );
-          parent.add(ballMesh);
+            sphere.position.set(5, 11.5, -5)
+            sphere2.position.set(6, 11.5, -5.4)
+
+            parent.add( sphere );
+            parent.add( sphere2 );
 
       }
 
