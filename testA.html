@@ -9,10 +9,12 @@
 </head>
 <style>
     #blocker {
+
         position: absolute;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(255, 255, 255, 0.5);
+
     }
 
     #instructions {
@@ -56,6 +58,7 @@
     </div>
 
     <script type="module">
+
         // ============================================================================
         // I find this option simpler than installing the entire three.module.js file
         import * as THREE from 'https://unpkg.com/three@0.128.0/build/three.module.js';
@@ -74,6 +77,11 @@
         let dirX = 0.05;
         let dirY = 0.04;
         let dirZ = 0.03;
+        let light, lightMesh, lightAmbient; //lamp variables
+        let spotlight; //headlamp variable
+        let redLight, lightRMesh, redAmbient; //red light
+        let blueLight, lightBMesh, blueAmbient; //blue light
+        let greenLight, lightGMesh, greenAmbient; //green light
         // How much more the snowman is tilting each iteration
         let floorMesh, floorMesh1, floorMesh2, floorMesh3, floorMesh4, floorMesh5, floorMesh6, floorMesh7, floorMesh8, floorMesh9;
         const FLOOR_WIDTH = 200;  // The dimensions of the floor
@@ -86,7 +94,11 @@
         const COUCH_WIDTH = 80;
         const COUCH_HEIGHT = 50;
         const COUCH_DEPTH = 30;
-
+        let redLightFlag = false;
+        let blueLightFlag = false;
+        let greenLightFlag = false;
+        let lampLightFlag = false;
+        let headlampLightFlag = false;
         let moveForward = false;
         let moveBackward = false;
         let moveLeft = false;
@@ -142,10 +154,10 @@
 
         }
 
+
         function setupNavigation(parent) {
             controls = new PointerLockControls(camera, document.body);
             parent.add(controls.getObject());
-
 
             // Set up the key listeners
             const onKeyDown = function (event) {
@@ -169,6 +181,82 @@
                     case 'KeyD':
                         moveRight = true;
                         break;
+
+                    case 'Digit1':
+                        if (redLightFlag === true) {
+                            scene.remove(redLight);
+                            scene.remove(lightRMesh);
+                            scene.remove(redAmbient);
+
+                            redLightFlag = false;
+                        }
+                        else {
+                            setRedLighting(scene);
+                            redLightFlag = true;
+
+                            console.log("key pressed red: " + redLightFlag);
+                        }
+                        break;
+
+                    case 'Digit2':
+                        if (greenLightFlag === true) {
+
+                            scene.remove(greenLight);
+                            scene.remove(lightGMesh);
+                            scene.remove(greenAmbient);
+                            greenLightFlag = false;
+                        }
+                        else {
+                            setGreenLighting(scene);
+
+                            greenLightFlag = true;
+                            console.log("key pressed green: " + greenLightFlag);
+                        }
+                        break;
+
+                    case 'Digit3':
+                        if (blueLightFlag === true) {
+                            scene.remove(blueLight);
+                            scene.remove(lightBMesh);
+                            scene.remove(blueAmbient);
+
+                            blueLightFlag = false;
+                        }
+                        else {
+                            setBlueLighting(scene);
+                            blueLightFlag = true;
+                            console.log("key pressed blue: " + blueLightFlag);
+                        }
+                        break;
+
+                    case 'Digit4':
+                        if (lampLightFlag === true) {
+                            scene.remove(light);
+                            scene.remove(lightMesh);
+                            scene.remove(lightAmbient);
+
+                            lampLightFlag = false;
+                        }
+                        else {
+                            setLampLighting(scene);
+                            lampLightFlag = true;
+                            console.log("key pressed lamp: " + lampLightFlag);
+                        }
+                        break;
+
+                    case 'Digit5':
+                        if (headlampLightFlag === true) {
+                            scene.remove(spotlight);
+
+                            headlampLightFlag = false;
+                        }
+                        else {
+                            headlampLightFlag = true;
+                            headlamp(scene);
+                            console.log("key pressed headlamp: " + headlampLightFlag);
+                        }
+                        break;
+
 
                 }
             };
@@ -225,41 +313,154 @@
             });
         }
 
-        function setupLighting(parent) {
+        function headlamp(parent) {
+            const spotlight = new THREE.SpotLight(0xffffff, 1);
+
+            spotlight.angle = Math.PI / 6;
+            spotlight.position.copy(camera.position);
+
+            camera.add(spotlight);
+
+            parent.add(spotlight);
+            parent.add(camera);
+            spotlight.target = camera;
+        }
+        function setRedLighting(parent) {
+
             var x;
-            for (x = -10; x <= 10; x += 10) {
-                var lightColor = 0xcccc99
-                var light = new THREE.PointLight(lightColor, 1, 100);
-                // var pos = new THREE.Vector3(x, 100, 5);
-                light.position.set(x, 20, 0);
-                parent.add(light);
-                parent.add(new THREE.AmbientLight(0xFFFFFF));
 
-                // Make the light "visible"
-                // Create the Sphere Geometry
-                const geometry = new THREE.SphereGeometry(0.25, 10, 10);
-                const mat = new THREE.MeshPhongMaterial({
-                    color: 0x000000,     // reflectivity for diffuse and ambient light
-                    emissive: lightColor,  // emission color; a very small amount of red (in case my lighting is not working really)
-                    specular: 0x000000,  // reflectivity for specular light
-                    shininess: 1       // controls size of specular highlights
-                });
-                var lightMesh = new THREE.Mesh(geometry, mat);
-                lightMesh.position.set(x, 20, 0);
-                parent.add(lightMesh);
+            var red = 0xff0000
+            redLight = new THREE.PointLight(red, 5, 100);
+            redLight.position.set(-10, 80, -20);
+            redAmbient = new THREE.AmbientLight(0xff0000);
 
-            }
+            parent.add(redLight);
+            parent.add(redAmbient);
+
+            const geometry = new THREE.SphereGeometry(3, 10, 10);
+            const matr = new THREE.MeshPhongMaterial({
+                color: 0x000000,     // reflectivity for diffuse and ambient light
+                emissive: red,  // emission color; a very small amount of red (in case my lighting is not working really)
+                specular: 0x000000,  // reflectivity for specular light
+                shininess: 100      // controls size of specular highlights
+            });
+            lightRMesh = new THREE.Mesh(geometry, matr);
+
+            lightRMesh.position.set(-10, 80, 0);
+
+            parent.add(lightRMesh);
+
+
+        }
+
+
+
+
+
+        function setBlueLighting(parent) {
+
+            var x;
+
+            var blue = 0x0000ff
+            blueLight = new THREE.PointLight(blue, 5, 100);
+            blueLight.position.set(10, 80, -20);
+            blueAmbient = new THREE.AmbientLight(0x0000ff)
+
+            parent.add(blueLight);
+            parent.add(blueAmbient);
+
+
+            // Make the light "visible"
+            // Create the Sphere Geometry
+            const geometry = new THREE.SphereGeometry(3, 10, 10);
+
+            const matb = new THREE.MeshPhongMaterial({
+                color: 0x000000,     // reflectivity for diffuse and ambient light
+                emissive: blue,  // emission color; a very small amount of red (in case my lighting is not working really)
+                specular: 0x000000,  // reflectivity for specular light
+                shininess: 50       // controls size of specular highlights
+            });
+            lightBMesh = new THREE.Mesh(geometry, matb);
+
+            lightBMesh.position.set(10, 80, 0);
+
+            parent.add(lightBMesh);
+
+        }
+
+
+        function setGreenLighting(parent) {
+
+            var x;
+
+            var green = 0x00ff00
+            greenLight = new THREE.PointLight(green, 5, 100);
+
+            greenLight.position.set(0, 80, -20);
+            greenAmbient = new THREE.AmbientLight(0x00ff00);
+
+            parent.add(greenLight);
+            parent.add(greenAmbient);
+
+            // Make the light "visible"
+            // Create the Sphere Geometry
+            const geometry = new THREE.SphereGeometry(3, 10, 10);
+
+            const matg = new THREE.MeshPhongMaterial({
+                color: 0x000000,     // reflectivity for diffuse and ambient light
+                emissive: green,  // emission color; a very small amount of red (in case my lighting is not working really)
+                specular: 0x000000,  // reflectivity for specular light
+                shininess: 50       // controls size of specular highlights
+            });
+
+            lightGMesh = new THREE.Mesh(geometry, matg);
+
+            lightGMesh.position.set(0, 80, 0);
+
+            parent.add(lightGMesh);
+
+        }
+
+        function setLampLighting(parent) {
+
+            var x;
+
+            var lightColor = 0xcccc99
+            light = new THREE.PointLight(lightColor, 5, 75);
+            light.position.set(5, 18, 5);
+
+            lightAmbient = new THREE.AmbientLight(0xffffff);
+
+            parent.add(light);
+            parent.add(lightAmbient);
+
+            // Make the light "visible"
+            // Create the Sphere Geometry
+            const geometry = new THREE.SphereGeometry(1, 10, 10);
+
+            const mat = new THREE.MeshPhongMaterial({
+                color: 0x000000,     // reflectivity for diffuse and ambient light
+                emissive: lightColor,  // emission color; a very small amount of red (in case my lighting is not working really)
+                specular: 0x000000,  // reflectivity for specular light
+                shininess: 50       // controls size of specular highlights
+            });
+            lightMesh = new THREE.Mesh(geometry, mat);
+
+            lightMesh.position.set(5, 18, 5);
+
+            parent.add(lightMesh);
+
         }
 
         function createDice(parent) {
-
             var materialArray = [];
-            materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('textures/dice1.jpg') }));
-            materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('textures/dice2.jpg') }));
-            materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('textures/dice3.jpg') }));
-            materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('textures/dice4.jpg') }));
-            materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('textures/dice5.jpg') }));
-            materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('textures/dice6.jpg') }));
+            materialArray.push(new THREE.MeshPhongMaterial({ map: THREE.ImageUtils.loadTexture('textures/dice1.jpg') }));
+            materialArray.push(new THREE.MeshPhongMaterial({ map: THREE.ImageUtils.loadTexture('textures/dice2.jpg') }));
+            materialArray.push(new THREE.MeshPhongMaterial({ map: THREE.ImageUtils.loadTexture('textures/dice3.jpg') }));
+            materialArray.push(new THREE.MeshPhongMaterial({ map: THREE.ImageUtils.loadTexture('textures/dice4.jpg') }));
+            materialArray.push(new THREE.MeshPhongMaterial({ map: THREE.ImageUtils.loadTexture('textures/dice5.jpg') }));
+            materialArray.push(new THREE.MeshPhongMaterial({ map: THREE.ImageUtils.loadTexture('textures/dice6.jpg') }));
+
 
             var DiceMaterial = new THREE.MeshFaceMaterial(materialArray);
 
@@ -282,6 +483,7 @@
 
         function createLamp(parent) {
             const lampTexture = new THREE.TextureLoader().load('textures/download.jpg')
+
             lampTexture.repeat = new THREE.Vector2(TABLE_WIDTH / 10, TABLE_DEPTH / 10);
             lampTexture.wrapS = THREE.MirroredRepeatWrapping;
             lampTexture.wrapT = THREE.RepeatWrapping;
@@ -290,7 +492,7 @@
             const lampStemGeometry = new THREE.CylinderGeometry(.5, .5, 8, 10);
             const lampShadeGeometry = new THREE.CylinderGeometry(1, 4, 5, 50);
 
-            const material = new THREE.MeshBasicMaterial({
+            const material = new THREE.MeshPhongMaterial({
                 roughness: 0.8,
                 color: 0xffffff,
                 metalness: 0.2,
@@ -298,13 +500,12 @@
                 map: lampTexture
             });
 
-            const lampLight = new THREE.MeshBasicMaterial({
+            const lampLight = new THREE.MeshPhongMaterial({
                 roughness: 0.8,
                 color: 0xffffff,
                 metalness: 0.2,
                 bumpScale: 0.0005
             });
-
 
             const lampBase = new THREE.Mesh(lampBaseGeometry, material);
             lampBase.position.set(30, 11 + 5, 5);
@@ -317,6 +518,7 @@
             parent.add(lampStem);
             parent.add(lampShade);
 
+
         }
 
         function createPicture(parent) {
@@ -327,10 +529,11 @@
 
             const pirateTexture = new THREE.TextureLoader().load('textures/pirate.jpg');
 
+
             const frameGeometry1 = new THREE.BoxGeometry(4, 40, 40);
             const pictureGeometry = new THREE.BoxGeometry(2.1 * 2, 18 * 2, 18 * 2);
 
-            const material = new THREE.MeshBasicMaterial({
+            const material = new THREE.MeshPhongMaterial({
                 roughness: 0.8,
                 color: 0x966F33,
                 metalness: 0.2,
@@ -338,14 +541,15 @@
                 map: marbleTexture
             });
 
-            const pictureMaterial = new THREE.MeshBasicMaterial({
+            const pictureMaterial = new THREE.MeshPhongMaterial({
                 roughness: 0.8,
                 metalness: 0.2,
-                bumpScale: 0.1,
+                bumpScale: 0.0005,
                 map: pirateTexture
             });
 
             const pictureFrame = new THREE.Mesh(frameGeometry1, material);
+
             pictureFrame.position.set(100, 50, 0);
             const picture = new THREE.Mesh(pictureGeometry, pictureMaterial);
             picture.position.set(100, 50, 0);
@@ -353,207 +557,209 @@
             parent.add(picture)
 
 
-        }
+
+            function createTable(parent) {
+                const marbleTexture = new THREE.TextureLoader().load('textures/white-marble.jpg');
+                marbleTexture.repeat = new THREE.Vector2(TABLE_WIDTH / 10, TABLE_DEPTH / 10);
+                marbleTexture.wrapS = THREE.MirroredRepeatWrapping;
+                marbleTexture.wrapT = THREE.RepeatWrapping;
 
 
-        function createTable(parent) {
-            const marbleTexture = new THREE.TextureLoader().load('textures/white-marble.jpg');
-            marbleTexture.repeat = new THREE.Vector2(TABLE_WIDTH / 10, TABLE_DEPTH / 10);
-            marbleTexture.wrapS = THREE.MirroredRepeatWrapping;
-            marbleTexture.wrapT = THREE.RepeatWrapping;
+                const tableTopGeometry = new THREE.BoxGeometry(TABLE_WIDTH, TABLE_HEIGHT, TABLE_DEPTH);
+                const tableLeg1Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
+                const tableLeg2Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
+                const tableLeg3Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
+                const tableLeg4Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
 
-            const tableTopGeometry = new THREE.BoxGeometry(TABLE_WIDTH, TABLE_HEIGHT, TABLE_DEPTH);
-            const tableLeg1Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
-            const tableLeg2Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
-            const tableLeg3Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
-            const tableLeg4Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
+                const material = new THREE.MeshPhongMaterial({
+                    roughness: 0.8,
+                    color: 0x966F33,
+                    metalness: 0.2,
+                    bumpScale: 0.0005,
+                    specular: 0x101010,  // reflectivity for specular light
+                    shininess: 100,
+                    map: marbleTexture
+                });
 
-            const material = new THREE.MeshBasicMaterial({
-                roughness: 0.8,
-                color: 0x966F33,
-                metalness: 0.2,
-                bumpScale: 0.0005,
-                map: marbleTexture
-            });
+                const tableTop = new THREE.Mesh(tableTopGeometry, material);
+                tableTop.position.set(0, 15, 0);
+                const tableLeg1 = new THREE.Mesh(tableLeg1Geo, material);
+                tableLeg1.position.set(-18, 5, 18);
+                const tableLeg2 = new THREE.Mesh(tableLeg2Geo, material);
+                tableLeg2.position.set(18, 5, 18);
+                const tableLeg3 = new THREE.Mesh(tableLeg3Geo, material);
+                tableLeg3.position.set(-18, 5, -18);
+                const tableLeg4 = new THREE.Mesh(tableLeg4Geo, material);
+                tableLeg4.position.set(18, 5, -18);
 
-            const tableTop = new THREE.Mesh(tableTopGeometry, material);
-            tableTop.position.set(0, 15, 0);
-            const tableLeg1 = new THREE.Mesh(tableLeg1Geo, material);
-            tableLeg1.position.set(-18, 5, 18);
-            const tableLeg2 = new THREE.Mesh(tableLeg2Geo, material);
-            tableLeg2.position.set(18, 5, 18);
-            const tableLeg3 = new THREE.Mesh(tableLeg3Geo, material);
-            tableLeg3.position.set(-18, 5, -18);
-            const tableLeg4 = new THREE.Mesh(tableLeg4Geo, material);
-            tableLeg4.position.set(18, 5, -18);
-
-            parent.add(tableTop);
-            parent.add(tableLeg1);
-            parent.add(tableLeg2);
-            parent.add(tableLeg3);
-            parent.add(tableLeg4);
-
-        }
-
-        // Create a floor and add it to the parent object
-        function createFloor(parent) {
-            const marbleTexture = new THREE.TextureLoader().load('textures/white-marble.jpg');
-            const floorTexture = new THREE.TextureLoader().load('textures/floor.jpg');
-            const wallTexture = new THREE.TextureLoader().load('textures/wall.jpg');
-            marbleTexture.repeat = new THREE.Vector2(FLOOR_WIDTH / 10, FLOOR_DEPTH / 10);  // Repeat the texture in both the width and depth directions
-            marbleTexture.wrapS = THREE.MirroredRepeatWrapping;  // When repeating, wrapped but alternate by mirroring (avoids edges)
-            marbleTexture.wrapT = THREE.RepeatWrapping;  // Did not use mirror wrapping here, so you can look at the seam that is created. (Perhaps you want it, perhaps not!)
-
-            const floor = new THREE.PlaneGeometry(FLOOR_WIDTH, FLOOR_DEPTH, 10 * FLOOR_WIDTH, 10 * FLOOR_DEPTH);
-            const floor1 = new THREE.PlaneGeometry(WALL_HEIGHT, WALL_WIDTH, WALL_HEIGHT, WALL_WIDTH);
-
-            floor1.translate(0, 60, -FLOOR_WIDTH / 2);
-
-            // const mat = new THREE.MeshBasicMaterial({ map: marbleTexture});
-            const mat = new THREE.MeshPhongMaterial({
-                color: 0x808080,     // reflectivity for diffuse and ambient light
-                emissive: 0x010101,  // emission color; a very small amount of red (in case my lighting is not working really)
-                specular: 0x101010,  // reflectivity for specular light
-                shininess: 100,      // controls size of specular highlights
-                map: floorTexture
-            });
-            const mat1 = new THREE.MeshPhongMaterial({
-                color: 0x808080,     // reflectivity for diffuse and ambient light
-                emissive: 0x010101,  // emission color; a very small amount of red (in case my lighting is not working really)
-                // specular: 0x101010,  // reflectivity for specular light
-                shininess: 20,      // controls size of specular highlights
-                map: wallTexture
-            });
-            floorMesh = new THREE.Mesh(floor, mat);
-            floorMesh.rotation.x = -Math.PI / 2;   // Orient it on the floor
-
-            floorMesh1 = new THREE.Mesh(floor1, mat1);
-            floorMesh2 = new THREE.Mesh(floor1, mat1);
-            floorMesh3 = new THREE.Mesh(floor1, mat1);
-            floorMesh4 = new THREE.Mesh(floor1, mat1);
-
-            floorMesh2.rotation.y = THREE.Math.degToRad(90);
-            floorMesh3.rotation.y = THREE.Math.degToRad(270)
-            floorMesh4.rotation.y = THREE.Math.degToRad(180);
-
-            parent.add(floorMesh);
-            parent.add(floorMesh1);
-            parent.add(floorMesh2);
-            parent.add(floorMesh3);
-            parent.add(floorMesh4);
-        }
-
-        function createSnowman(parent) {
-
-            snowman = new THREE.Object3D();
-            const ballTexture1 = new THREE.TextureLoader().load('textures/blue-metal.jpg');
-
-            const ball1 = new THREE.MeshPhongMaterial({
-                color: 0x808080,
-                emissive: 0x200000,
-                specular: 0x828282,
-                shininess: 100,
-                map: ballTexture1
-            });
-
-
-            const headGeometry = new THREE.SphereGeometry(1, 20, 20);
-            const headMesh = new THREE.Mesh(headGeometry, ball1);
-
-            snowman.add(headMesh);
-
-            headMesh.position.x = 11;
-            headMesh.position.y = TABLE_HEIGHT * 8.5;
-
-            parent.add(snowman);
-        }
-
-        function createSnowman2(parent) {
-
-            snowman2 = new THREE.Object3D();
-
-            const ballTexture2 = new THREE.TextureLoader().load('textures/download-3.jpg');
-
-
-            const ball2 = new THREE.MeshPhongMaterial({
-                color: 0x808080,
-                emissive: 0x200000,
-                specular: 0x828282,
-                shininess: 100,
-                map: ballTexture2
-            });
-
-            const headGeometry2 = new THREE.SphereGeometry(1, 20, 20);
-
-            const headMesh2 = new THREE.Mesh(headGeometry2, ball2);
-
-            snowman2.add(headMesh2);
-
-            headMesh2.position.x = 6;
-            headMesh2.position.y = TABLE_HEIGHT * 8.5;
-            parent.add(snowman2);
-        }
-
-
-
-        // On a window resize, recompute the camera's aspect ratio and then update the project matrix based on that.
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);  // Request another call to animation frame (as soon as possible)
-
-            // How much time has elapsed since the last animation frame?  (Used for steadier speed)
-            const currentTime = performance.now();
-            const delta = (currentTime - previousAnimationTime) / 1000.0;   // Elapsed time in seconds
-            previousAnimationTime = currentTime;
-
-            // Adjust movement (assuming we have locked the mouse pointer to the document)
-            if (controls.isLocked) adjustMovement(delta);
-
-            // Rotate the mesh object in the x and y and z directions a bit.
-            snowman.rotation.y += dz;
-            snowman2.rotation.y += - dz;
-
-
-
-            dice.rotation.x += .05;
-            dice.rotation.y += .04;
-            dice.position.z += dirX;
-            dice.position.x += dirZ;
-
-
-            /* dice.rotation.z += 0.005;*/
-
-            if (dice.position.z >= TABLE_DEPTH / 2 || dice.position.z <= -TABLE_DEPTH / 2) {
-                dirX = -dirX;
-                dirZ = -dirZ;
-            } else if (dice.position.y >= TABLE_WIDTH / 2 || dice.position.y <= -TABLE_WIDTH / 2) {
-                dirX = -dirX;
-                dirZ = -dirZ;
+                parent.add(tableTop);
+                parent.add(tableLeg1);
+                parent.add(tableLeg2);
+                parent.add(tableLeg3);
+                parent.add(tableLeg4);
 
             }
 
+            // Create a floor and add it to the parent object
+            function createFloor(parent) {
+                const marbleTexture = new THREE.TextureLoader().load('textures/white-marble.jpg');
+                const floorTexture = new THREE.TextureLoader().load('textures/floor.jpg');
+                const wallTexture = new THREE.TextureLoader().load('textures/wall.jpg');
+                marbleTexture.repeat = new THREE.Vector2(FLOOR_WIDTH / 10, FLOOR_DEPTH / 10);  // Repeat the texture in both the width and depth directions
+                marbleTexture.wrapS = THREE.MirroredRepeatWrapping;  // When repeating, wrapped but alternate by mirroring (avoids edges)
+                marbleTexture.wrapT = THREE.RepeatWrapping;  // Did not use mirror wrapping here, so you can look at the seam that is created. (Perhaps you want it, perhaps not!)
 
-            // And now render the scene using the camera
-            //    The renderer does all the set up and calling
-            renderer.render(scene, camera);
-        }
+                const floor = new THREE.PlaneGeometry(FLOOR_WIDTH, FLOOR_DEPTH, 10 * FLOOR_WIDTH, 10 * FLOOR_DEPTH);
+                const floor1 = new THREE.PlaneGeometry(WALL_HEIGHT, WALL_WIDTH, WALL_HEIGHT, WALL_WIDTH);
 
-        // Adjust the camera's position based on keys pressed
-        function adjustMovement(delta) {
-            // Compute the direction to move based on the WASD keys pressed
-            moveDirection.x = Number(moveRight) - Number(moveLeft);  // Since the keyboard allows pushing both at same time (they can cancel each other)
-            moveDirection.z = Number(moveForward) - Number(moveBackward);
-            moveDirection.normalize();   // Make sure that the direction is of unit length (so diagonal is not faster)
+                floor1.translate(0, 60, -FLOOR_WIDTH / 2);
 
-            controls.moveRight(moveDirection.x * moveSpeed * delta);
-            controls.moveForward(moveDirection.z * moveSpeed * delta);
-        }
+                // const mat = new THREE.MeshBasicMaterial({ map: marbleTexture});
+                const mat = new THREE.MeshPhongMaterial({
+                    color: 0x808080,     // reflectivity for diffuse and ambient light
+                    emissive: 0x010101,  // emission color; a very small amount of red (in case my lighting is not working really)
+                    specular: 0x101010,  // reflectivity for specular light
+                    shininess: 100,      // controls size of specular highlights
+                    map: floorTexture
+                });
+                const mat1 = new THREE.MeshPhongMaterial({
+                    color: 0x808080,     // reflectivity for diffuse and ambient light
+                    emissive: 0x010101,  // emission color; a very small amount of red (in case my lighting is not working really)
+                    // specular: 0x101010,  // reflectivity for specular light
+                    shininess: 20,      // controls size of specular highlights
+                    map: wallTexture
+                });
+                floorMesh = new THREE.Mesh(floor, mat);
+                floorMesh.rotation.x = -Math.PI / 2;   // Orient it on the floor
+
+                floorMesh1 = new THREE.Mesh(floor1, mat1);
+                floorMesh2 = new THREE.Mesh(floor1, mat1);
+                floorMesh3 = new THREE.Mesh(floor1, mat1);
+                floorMesh4 = new THREE.Mesh(floor1, mat1);
+
+                floorMesh2.rotation.y = THREE.Math.degToRad(90);
+                floorMesh3.rotation.y = THREE.Math.degToRad(270)
+                floorMesh4.rotation.y = THREE.Math.degToRad(180);
+
+                parent.add(floorMesh);
+                parent.add(floorMesh1);
+                parent.add(floorMesh2);
+                parent.add(floorMesh3);
+                parent.add(floorMesh4);
+            }
+
+            function createSnowman(parent) {
+
+                snowman = new THREE.Object3D();
+                const ballTexture1 = new THREE.TextureLoader().load('textures/blue-metal.jpg');
+
+                const ball1 = new THREE.MeshPhongMaterial({
+                    color: 0x808080,
+                    emissive: 0x200000,
+                    specular: 0x828282,
+                    shininess: 100,
+                    map: ballTexture1
+                });
+
+
+                const headGeometry = new THREE.SphereGeometry(1, 20, 20);
+                const headMesh = new THREE.Mesh(headGeometry, ball1);
+
+                snowman.add(headMesh);
+
+                headMesh.position.x = 11;
+                headMesh.position.y = TABLE_HEIGHT * 8.5;
+
+                parent.add(snowman);
+            }
+
+            function createSnowman2(parent) {
+
+                snowman2 = new THREE.Object3D();
+
+                const ballTexture2 = new THREE.TextureLoader().load('textures/download-3.jpg');
+
+
+                const ball2 = new THREE.MeshPhongMaterial({
+                    color: 0x808080,
+                    emissive: 0x200000,
+                    specular: 0x828282,
+                    shininess: 100,
+                    map: ballTexture2
+                });
+
+                const headGeometry2 = new THREE.SphereGeometry(1, 20, 20);
+
+                const headMesh2 = new THREE.Mesh(headGeometry2, ball2);
+
+                snowman2.add(headMesh2);
+
+                headMesh2.position.x = 6;
+                headMesh2.position.y = TABLE_HEIGHT * 8.5;
+                parent.add(snowman2);
+            }
+
+
+
+            // On a window resize, recompute the camera's aspect ratio and then update the project matrix based on that.
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);  // Request another call to animation frame (as soon as possible)
+
+                // How much time has elapsed since the last animation frame?  (Used for steadier speed)
+                const currentTime = performance.now();
+                const delta = (currentTime - previousAnimationTime) / 1000.0;   // Elapsed time in seconds
+                previousAnimationTime = currentTime;
+
+                // Adjust movement (assuming we have locked the mouse pointer to the document)
+                if (controls.isLocked) adjustMovement(delta);
+
+                // Rotate the mesh object in the x and y and z directions a bit.
+                snowman.rotation.y += dz;
+                snowman2.rotation.y += - dz;
+
+
+
+                dice.rotation.x += .05;
+                dice.rotation.y += .04;
+                dice.position.z += dirX;
+                dice.position.x += dirZ;
+
+
+                /* dice.rotation.z += 0.005;*/
+
+                if (dice.position.z >= TABLE_DEPTH / 2 || dice.position.z <= -TABLE_DEPTH / 2) {
+                    dirX = -dirX;
+                    dirZ = -dirZ;
+                } else if (dice.position.y >= TABLE_WIDTH / 2 || dice.position.y <= -TABLE_WIDTH / 2) {
+                    dirX = -dirX;
+                    dirZ = -dirZ;
+
+                }
+
+
+                // And now render the scene using the camera
+                //    The renderer does all the set up and calling
+                renderer.render(scene, camera);
+            }
+
+            // Adjust the camera's position based on keys pressed
+            function adjustMovement(delta) {
+                // Compute the direction to move based on the WASD keys pressed
+                moveDirection.x = Number(moveRight) - Number(moveLeft);  // Since the keyboard allows pushing both at same time (they can cancel each other)
+                moveDirection.z = Number(moveForward) - Number(moveBackward);
+                moveDirection.normalize();   // Make sure that the direction is of unit length (so diagonal is not faster)
+
+                controls.moveRight(moveDirection.x * moveSpeed * delta);
+                controls.moveForward(moveDirection.z * moveSpeed * delta);
+            }
+
     </script>
 
 </body>
