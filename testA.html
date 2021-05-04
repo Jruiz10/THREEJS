@@ -140,7 +140,7 @@
             createFloor(scene);
 
             // Set up lighting
-            setupLighting(scene)
+            //setupLighting(scene)
 
             // Set up the navigation controls
             setupNavigation(scene);
@@ -158,6 +158,7 @@
         function setupNavigation(parent) {
             controls = new PointerLockControls(camera, document.body);
             parent.add(controls.getObject());
+
 
             // Set up the key listeners
             const onKeyDown = function (event) {
@@ -295,6 +296,7 @@
             // So, we need to set up such a gesture.  Using the PointerLock example from Three.js here.
             const blocker = document.getElementById('blocker');
             const instructions = document.getElementById('instructions');
+
             instructions.addEventListener('click', function () {
                 controls.lock();  // Lock the controls -- REQUESTS that the pointer be locked on this document.
                 // The PointerLockControls class handles the mouse motion for looking but not the movement via keyboard controls
@@ -427,9 +429,9 @@
 
             var lightColor = 0xcccc99
             light = new THREE.PointLight(lightColor, 5, 75);
-            light.position.set(5, 18, 5);
+            light.position.set(30, 23, 5);
 
-            lightAmbient = new THREE.AmbientLight(0xffffff);
+            lightAmbient = new THREE.AmbientLight(0xffffff, 0.75);
 
             parent.add(light);
             parent.add(lightAmbient);
@@ -446,7 +448,7 @@
             });
             lightMesh = new THREE.Mesh(geometry, mat);
 
-            lightMesh.position.set(5, 18, 5);
+            lightMesh.position.set(30, 23, 5);
 
             parent.add(lightMesh);
 
@@ -465,11 +467,11 @@
             var DiceMaterial = new THREE.MeshFaceMaterial(materialArray);
 
             // MeshFaceMaterial is now called MultiMaterial
-            var DiceGeometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2);
+            var DiceGeometry = new THREE.BoxGeometry(2, 2, 2, 3, 3, 3);
             DiceGeometry.center();
             dice = new THREE.Mesh(DiceGeometry, DiceMaterial);
 
-            dice.position.set(-25, TABLE_HEIGHT * 8 + 1, -3);
+            dice.position.set(-25, TABLE_HEIGHT * 8 + 1.4, -3);
 
 
 
@@ -482,7 +484,7 @@
 
 
         function createLamp(parent) {
-            const lampTexture = new THREE.TextureLoader().load('textures/download.jpg')
+            const lampTexture = new THREE.TextureLoader().load('textures/blue-metal.jpg')
 
             lampTexture.repeat = new THREE.Vector2(TABLE_WIDTH / 10, TABLE_DEPTH / 10);
             lampTexture.wrapS = THREE.MirroredRepeatWrapping;
@@ -555,210 +557,210 @@
             picture.position.set(100, 50, 0);
             parent.add(pictureFrame);
             parent.add(picture)
+        }
+
+
+        function createTable(parent) {
+            const marbleTexture = new THREE.TextureLoader().load('textures/table-texture.jpg');
+            marbleTexture.repeat = new THREE.Vector2(TABLE_WIDTH / 10, TABLE_DEPTH / 10);
+            marbleTexture.wrapS = THREE.MirroredRepeatWrapping;
+            marbleTexture.wrapT = THREE.RepeatWrapping;
+
+
+            const tableTopGeometry = new THREE.BoxGeometry(TABLE_WIDTH, TABLE_HEIGHT, TABLE_DEPTH);
+            const tableLeg1Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
+            const tableLeg2Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
+            const tableLeg3Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
+            const tableLeg4Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
+
+            const material = new THREE.MeshPhongMaterial({
+                roughness: 0.8,
+                metalness: 0.2,
+                bumpScale: 0.0005,
+                specular: 0x101010,  // reflectivity for specular light
+                shininess: 100,
+                map: marbleTexture
+            });
+
+            const tableTop = new THREE.Mesh(tableTopGeometry, material);
+            tableTop.position.set(0, 15, 0);
+            const tableLeg1 = new THREE.Mesh(tableLeg1Geo, material);
+            tableLeg1.position.set(-18, 5, 18);
+            const tableLeg2 = new THREE.Mesh(tableLeg2Geo, material);
+            tableLeg2.position.set(18, 5, 18);
+            const tableLeg3 = new THREE.Mesh(tableLeg3Geo, material);
+            tableLeg3.position.set(-18, 5, -18);
+            const tableLeg4 = new THREE.Mesh(tableLeg4Geo, material);
+            tableLeg4.position.set(18, 5, -18);
+
+            parent.add(tableTop);
+            parent.add(tableLeg1);
+            parent.add(tableLeg2);
+            parent.add(tableLeg3);
+            parent.add(tableLeg4);
+
+        }
+
+        // Create a floor and add it to the parent object
+        function createFloor(parent) {
+            const marbleTexture = new THREE.TextureLoader().load('textures/white-marble.jpg');
+            const floorTexture = new THREE.TextureLoader().load('textures/floor.jpg');
+            const wallTexture = new THREE.TextureLoader().load('textures/wall.jpg');
+            marbleTexture.repeat = new THREE.Vector2(FLOOR_WIDTH / 10, FLOOR_DEPTH / 10);  // Repeat the texture in both the width and depth directions
+            marbleTexture.wrapS = THREE.MirroredRepeatWrapping;  // When repeating, wrapped but alternate by mirroring (avoids edges)
+            marbleTexture.wrapT = THREE.RepeatWrapping;  // Did not use mirror wrapping here, so you can look at the seam that is created. (Perhaps you want it, perhaps not!)
+
+            const floor = new THREE.PlaneGeometry(FLOOR_WIDTH, FLOOR_DEPTH, 10 * FLOOR_WIDTH, 10 * FLOOR_DEPTH);
+            const floor1 = new THREE.PlaneGeometry(WALL_HEIGHT, WALL_WIDTH, WALL_HEIGHT, WALL_WIDTH);
+
+            floor1.translate(0, 60, -FLOOR_WIDTH / 2);
+
+            // const mat = new THREE.MeshBasicMaterial({ map: marbleTexture});
+            const mat = new THREE.MeshPhongMaterial({
+                color: 0x808080,     // reflectivity for diffuse and ambient light
+                emissive: 0x010101,  // emission color; a very small amount of red (in case my lighting is not working really)
+                specular: 0x101010,  // reflectivity for specular light
+                shininess: 100,      // controls size of specular highlights
+                map: floorTexture
+            });
+            const mat1 = new THREE.MeshPhongMaterial({
+                color: 0x808080,     // reflectivity for diffuse and ambient light
+                emissive: 0x010101,  // emission color; a very small amount of red (in case my lighting is not working really)
+                // specular: 0x101010,  // reflectivity for specular light
+                shininess: 20,      // controls size of specular highlights
+                map: wallTexture
+            });
+            floorMesh = new THREE.Mesh(floor, mat);
+            floorMesh.rotation.x = -Math.PI / 2;   // Orient it on the floor
+
+            floorMesh1 = new THREE.Mesh(floor1, mat1);
+            floorMesh2 = new THREE.Mesh(floor1, mat1);
+            floorMesh3 = new THREE.Mesh(floor1, mat1);
+            floorMesh4 = new THREE.Mesh(floor1, mat1);
+
+            floorMesh2.rotation.y = THREE.Math.degToRad(90);
+            floorMesh3.rotation.y = THREE.Math.degToRad(270)
+            floorMesh4.rotation.y = THREE.Math.degToRad(180);
+
+            parent.add(floorMesh);
+            parent.add(floorMesh1);
+            parent.add(floorMesh2);
+            parent.add(floorMesh3);
+            parent.add(floorMesh4);
+        }
+
+        function createSnowman(parent) {
+
+            snowman = new THREE.Object3D();
+            const ballTexture1 = new THREE.TextureLoader().load('textures/blue-metal.jpg');
+
+            const ball1 = new THREE.MeshPhongMaterial({
+                color: 0x808080,
+                emissive: 0x200000,
+                specular: 0x828282,
+                shininess: 100,
+                map: ballTexture1
+            });
+
+
+            const headGeometry = new THREE.SphereGeometry(1, 20, 20);
+            const headMesh = new THREE.Mesh(headGeometry, ball1);
+
+            snowman.add(headMesh);
+
+            headMesh.position.x = 11;
+            headMesh.position.y = TABLE_HEIGHT * 8.5;
+
+            parent.add(snowman);
+        }
+
+        function createSnowman2(parent) {
+
+            snowman2 = new THREE.Object3D();
+
+            const ballTexture2 = new THREE.TextureLoader().load('textures/download-3.jpg');
+
+
+            const ball2 = new THREE.MeshPhongMaterial({
+                color: 0x808080,
+                emissive: 0x200000,
+                specular: 0x828282,
+                shininess: 100,
+                map: ballTexture2
+            });
+
+            const headGeometry2 = new THREE.SphereGeometry(1, 20, 20);
+
+            const headMesh2 = new THREE.Mesh(headGeometry2, ball2);
+
+            snowman2.add(headMesh2);
+
+            headMesh2.position.x = 6;
+            headMesh2.position.y = TABLE_HEIGHT * 8.5;
+            parent.add(snowman2);
+        }
 
 
 
-            function createTable(parent) {
-                const marbleTexture = new THREE.TextureLoader().load('textures/white-marble.jpg');
-                marbleTexture.repeat = new THREE.Vector2(TABLE_WIDTH / 10, TABLE_DEPTH / 10);
-                marbleTexture.wrapS = THREE.MirroredRepeatWrapping;
-                marbleTexture.wrapT = THREE.RepeatWrapping;
+        // On a window resize, recompute the camera's aspect ratio and then update the project matrix based on that.
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);  // Request another call to animation frame (as soon as possible)
+
+            // How much time has elapsed since the last animation frame?  (Used for steadier speed)
+            const currentTime = performance.now();
+            const delta = (currentTime - previousAnimationTime) / 1000.0;   // Elapsed time in seconds
+            previousAnimationTime = currentTime;
+
+            // Adjust movement (assuming we have locked the mouse pointer to the document)
+            if (controls.isLocked) adjustMovement(delta);
+
+            // Rotate the mesh object in the x and y and z directions a bit.
+            snowman.rotation.y += dz;
+            snowman2.rotation.y += - dz;
 
 
-                const tableTopGeometry = new THREE.BoxGeometry(TABLE_WIDTH, TABLE_HEIGHT, TABLE_DEPTH);
-                const tableLeg1Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
-                const tableLeg2Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
-                const tableLeg3Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
-                const tableLeg4Geo = new THREE.BoxGeometry(TABLE_HEIGHT, 20, TABLE_HEIGHT);
 
-                const material = new THREE.MeshPhongMaterial({
-                    roughness: 0.8,
-                    color: 0x966F33,
-                    metalness: 0.2,
-                    bumpScale: 0.0005,
-                    specular: 0x101010,  // reflectivity for specular light
-                    shininess: 100,
-                    map: marbleTexture
-                });
+            dice.rotation.x += dirY;
+            dice.rotation.y += dirY;
+            dice.position.z += dirX;
+            dice.position.x += dirZ;
 
-                const tableTop = new THREE.Mesh(tableTopGeometry, material);
-                tableTop.position.set(0, 15, 0);
-                const tableLeg1 = new THREE.Mesh(tableLeg1Geo, material);
-                tableLeg1.position.set(-18, 5, 18);
-                const tableLeg2 = new THREE.Mesh(tableLeg2Geo, material);
-                tableLeg2.position.set(18, 5, 18);
-                const tableLeg3 = new THREE.Mesh(tableLeg3Geo, material);
-                tableLeg3.position.set(-18, 5, -18);
-                const tableLeg4 = new THREE.Mesh(tableLeg4Geo, material);
-                tableLeg4.position.set(18, 5, -18);
 
-                parent.add(tableTop);
-                parent.add(tableLeg1);
-                parent.add(tableLeg2);
-                parent.add(tableLeg3);
-                parent.add(tableLeg4);
+            /* dice.rotation.z += 0.005;*/
+
+            if (dice.position.z >= TABLE_DEPTH / 2 || dice.position.z <= -TABLE_DEPTH / 2) {
+                dirX = -dirX;
+                dirZ = -dirZ;
+                dirY = -dirY;
+            } else if (dice.position.y >= TABLE_WIDTH / 2 || dice.position.y <= -TABLE_WIDTH / 2) {
+                dirX = -dirX;
+                dirZ = -dirZ;
 
             }
 
-            // Create a floor and add it to the parent object
-            function createFloor(parent) {
-                const marbleTexture = new THREE.TextureLoader().load('textures/white-marble.jpg');
-                const floorTexture = new THREE.TextureLoader().load('textures/floor.jpg');
-                const wallTexture = new THREE.TextureLoader().load('textures/wall.jpg');
-                marbleTexture.repeat = new THREE.Vector2(FLOOR_WIDTH / 10, FLOOR_DEPTH / 10);  // Repeat the texture in both the width and depth directions
-                marbleTexture.wrapS = THREE.MirroredRepeatWrapping;  // When repeating, wrapped but alternate by mirroring (avoids edges)
-                marbleTexture.wrapT = THREE.RepeatWrapping;  // Did not use mirror wrapping here, so you can look at the seam that is created. (Perhaps you want it, perhaps not!)
 
-                const floor = new THREE.PlaneGeometry(FLOOR_WIDTH, FLOOR_DEPTH, 10 * FLOOR_WIDTH, 10 * FLOOR_DEPTH);
-                const floor1 = new THREE.PlaneGeometry(WALL_HEIGHT, WALL_WIDTH, WALL_HEIGHT, WALL_WIDTH);
+            // And now render the scene using the camera
+            //    The renderer does all the set up and calling
+            renderer.render(scene, camera);
+        }
 
-                floor1.translate(0, 60, -FLOOR_WIDTH / 2);
+        // Adjust the camera's position based on keys pressed
+        function adjustMovement(delta) {
+            // Compute the direction to move based on the WASD keys pressed
+            moveDirection.x = Number(moveRight) - Number(moveLeft);  // Since the keyboard allows pushing both at same time (they can cancel each other)
+            moveDirection.z = Number(moveForward) - Number(moveBackward);
+            moveDirection.normalize();   // Make sure that the direction is of unit length (so diagonal is not faster)
 
-                // const mat = new THREE.MeshBasicMaterial({ map: marbleTexture});
-                const mat = new THREE.MeshPhongMaterial({
-                    color: 0x808080,     // reflectivity for diffuse and ambient light
-                    emissive: 0x010101,  // emission color; a very small amount of red (in case my lighting is not working really)
-                    specular: 0x101010,  // reflectivity for specular light
-                    shininess: 100,      // controls size of specular highlights
-                    map: floorTexture
-                });
-                const mat1 = new THREE.MeshPhongMaterial({
-                    color: 0x808080,     // reflectivity for diffuse and ambient light
-                    emissive: 0x010101,  // emission color; a very small amount of red (in case my lighting is not working really)
-                    // specular: 0x101010,  // reflectivity for specular light
-                    shininess: 20,      // controls size of specular highlights
-                    map: wallTexture
-                });
-                floorMesh = new THREE.Mesh(floor, mat);
-                floorMesh.rotation.x = -Math.PI / 2;   // Orient it on the floor
-
-                floorMesh1 = new THREE.Mesh(floor1, mat1);
-                floorMesh2 = new THREE.Mesh(floor1, mat1);
-                floorMesh3 = new THREE.Mesh(floor1, mat1);
-                floorMesh4 = new THREE.Mesh(floor1, mat1);
-
-                floorMesh2.rotation.y = THREE.Math.degToRad(90);
-                floorMesh3.rotation.y = THREE.Math.degToRad(270)
-                floorMesh4.rotation.y = THREE.Math.degToRad(180);
-
-                parent.add(floorMesh);
-                parent.add(floorMesh1);
-                parent.add(floorMesh2);
-                parent.add(floorMesh3);
-                parent.add(floorMesh4);
-            }
-
-            function createSnowman(parent) {
-
-                snowman = new THREE.Object3D();
-                const ballTexture1 = new THREE.TextureLoader().load('textures/blue-metal.jpg');
-
-                const ball1 = new THREE.MeshPhongMaterial({
-                    color: 0x808080,
-                    emissive: 0x200000,
-                    specular: 0x828282,
-                    shininess: 100,
-                    map: ballTexture1
-                });
-
-
-                const headGeometry = new THREE.SphereGeometry(1, 20, 20);
-                const headMesh = new THREE.Mesh(headGeometry, ball1);
-
-                snowman.add(headMesh);
-
-                headMesh.position.x = 11;
-                headMesh.position.y = TABLE_HEIGHT * 8.5;
-
-                parent.add(snowman);
-            }
-
-            function createSnowman2(parent) {
-
-                snowman2 = new THREE.Object3D();
-
-                const ballTexture2 = new THREE.TextureLoader().load('textures/download-3.jpg');
-
-
-                const ball2 = new THREE.MeshPhongMaterial({
-                    color: 0x808080,
-                    emissive: 0x200000,
-                    specular: 0x828282,
-                    shininess: 100,
-                    map: ballTexture2
-                });
-
-                const headGeometry2 = new THREE.SphereGeometry(1, 20, 20);
-
-                const headMesh2 = new THREE.Mesh(headGeometry2, ball2);
-
-                snowman2.add(headMesh2);
-
-                headMesh2.position.x = 6;
-                headMesh2.position.y = TABLE_HEIGHT * 8.5;
-                parent.add(snowman2);
-            }
-
-
-
-            // On a window resize, recompute the camera's aspect ratio and then update the project matrix based on that.
-            function onWindowResize() {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            }
-
-            function animate() {
-                requestAnimationFrame(animate);  // Request another call to animation frame (as soon as possible)
-
-                // How much time has elapsed since the last animation frame?  (Used for steadier speed)
-                const currentTime = performance.now();
-                const delta = (currentTime - previousAnimationTime) / 1000.0;   // Elapsed time in seconds
-                previousAnimationTime = currentTime;
-
-                // Adjust movement (assuming we have locked the mouse pointer to the document)
-                if (controls.isLocked) adjustMovement(delta);
-
-                // Rotate the mesh object in the x and y and z directions a bit.
-                snowman.rotation.y += dz;
-                snowman2.rotation.y += - dz;
-
-
-
-                dice.rotation.x += .05;
-                dice.rotation.y += .04;
-                dice.position.z += dirX;
-                dice.position.x += dirZ;
-
-
-                /* dice.rotation.z += 0.005;*/
-
-                if (dice.position.z >= TABLE_DEPTH / 2 || dice.position.z <= -TABLE_DEPTH / 2) {
-                    dirX = -dirX;
-                    dirZ = -dirZ;
-                } else if (dice.position.y >= TABLE_WIDTH / 2 || dice.position.y <= -TABLE_WIDTH / 2) {
-                    dirX = -dirX;
-                    dirZ = -dirZ;
-
-                }
-
-
-                // And now render the scene using the camera
-                //    The renderer does all the set up and calling
-                renderer.render(scene, camera);
-            }
-
-            // Adjust the camera's position based on keys pressed
-            function adjustMovement(delta) {
-                // Compute the direction to move based on the WASD keys pressed
-                moveDirection.x = Number(moveRight) - Number(moveLeft);  // Since the keyboard allows pushing both at same time (they can cancel each other)
-                moveDirection.z = Number(moveForward) - Number(moveBackward);
-                moveDirection.normalize();   // Make sure that the direction is of unit length (so diagonal is not faster)
-
-                controls.moveRight(moveDirection.x * moveSpeed * delta);
-                controls.moveForward(moveDirection.z * moveSpeed * delta);
-            }
+            controls.moveRight(moveDirection.x * moveSpeed * delta);
+            controls.moveForward(moveDirection.z * moveSpeed * delta);
+        }
 
     </script>
 
