@@ -56,7 +56,11 @@
       let ballMesh;
       let pointlight
       let snowman;
-      let light;
+      let light, lightMesh, lightAmbient; //lamp variables
+      let spotlight; //headlamp variable
+      let redLight, lightRMesh, redAmbient; //red light
+      let blueLight, lightBMesh, blueAmbient; //blue light
+      let greenLight, lightGMesh, greenAmbient; //green light
       let dz = 0.01;  // How much more the snowman is tilting each iteration
       let floorMesh, floorMesh1, floorMesh2, floorMesh3, floorMesh4, floorMesh5, floorMesh6, floorMesh7, floorMesh8, floorMesh9;
       const FLOOR_WIDTH = 200;  // The dimensions of the floor
@@ -66,11 +70,11 @@
       const TABLE_HEIGHT = 2;
       const TABLE_WIDTH = 20;
       const TABLE_DEPTH = 20;
-      let redLight = true;
-      let blueLight = true;
-      let greenLight = true;
-      let lampLight = true;
-      let headlampLight = true;
+      let redLightFlag = false;
+      let blueLightFlag = false;
+      let greenLightFlag = false;
+      let lampLightFlag = false;
+      let headlampLightFlag = false;
 
       let moveForward = false;
       let moveBackward = false;
@@ -116,14 +120,6 @@
           // Create the floor
           createFloor(scene);
 
-          //headlamp
-          
-          // Set up lighting
-          //if(redLight === true){setRedLighting(scene)}
-          
-          //setBlueLighting(scene)
-          //setGreenLighting(scene)
-
           // Set up the navigation controls
           setupNavigation(scene);
           
@@ -164,50 +160,75 @@
 		  break;
 
           case 'Digit1':
-          if (redLight === true){
-          setRedLighting(scene);
-          redLight = false;
+          if (redLightFlag === true){
+            scene.remove(redLight);
+            scene.remove(lightRMesh);
+            scene.remove(redAmbient);
+          
+          redLightFlag = false;
             }
           else{
-          redLight = true;
-          console.log("key pressed red: " + redLight);}
+            setRedLighting(scene);
+            redLightFlag = true;
+
+          console.log("key pressed red: " + redLightFlag);}
           break;
 
           case 'Digit2':
-          if (greenLight === true)
-          {setGreenLighting(scene);
-              greenLight = false;}
+          if (greenLightFlag === true)
+          {
+
+          scene.remove(greenLight);
+            scene.remove(lightGMesh);
+            scene.remove(greenAmbient);
+              greenLightFlag = false;}
           else{
-          greenLight = true;
-          console.log("key pressed green: " + greenLight);
+            setGreenLighting(scene);
+
+            greenLightFlag = true;
+          console.log("key pressed green: " + greenLightFlag);
           }
           break;
 
           case 'Digit3':
-          if (blueLight === true)
-          {setBlueLighting(scene);
-              blueLight = false;}
+          if (blueLightFlag === true)
+          {scene.remove(blueLight);
+            scene.remove(lightBMesh);
+            scene.remove(blueAmbient);
+              
+              blueLightFlag = false;}
           else
-          blueLight = true;
-          console.log("key pressed blue: " + blueLight);
+          {
+            setBlueLighting(scene);
+          blueLightFlag = true;
+          console.log("key pressed blue: " + blueLightFlag);}
           break;
 
           case 'Digit4':
-          if (lampLight === true)
-          {setLampLighting(scene);
-          lampLight = false;}
+          if (lampLightFlag === true)
+          {
+            scene.remove(light);
+            scene.remove(lightMesh);
+            scene.remove(lightAmbient);
+            
+          lampLightFlag = false;
+        }
           else
-          lampLight = true;
-          console.log("key pressed lamp: " + lampLight);
+          {
+            setLampLighting(scene);
+            lampLightFlag = true;
+          console.log("key pressed lamp: " + lampLightFlag);}
           break;
 
           case 'Digit5':
-          if (headlampLight === true)
-          {headlamp(scene);
-          headlampLight = false;}
-          else
-          headlampLight = true;
-          console.log("key pressed headlamp: " + headlampLight);
+          if (headlampLightFlag === true)
+          { scene.remove(spotlight);
+              
+          headlampLightFlag = false;}
+          else{
+          headlampLightFlag = true;
+          headlamp(scene);
+          console.log("key pressed headlamp: " + headlampLightFlag);}
           break;
 
 
@@ -267,52 +288,30 @@
       }
 
       function headlamp(parent){
-        const light = new THREE.SpotLight(0xffffff, 1);
-        //var lightHelper1 = new THREE.SpotLightHelper( light );
-        //light.penumbra = 0.3;
-        //light.target = camera.position;
-        //camera.add(light.targ)
-        light.angle = Math.PI/6;
-        light.position.copy(camera.position);
+        const spotlight = new THREE.SpotLight(0xffffff, 1);
+  
+        spotlight.angle = Math.PI/6;
+        spotlight.position.copy(camera.position);
 
-        camera.add(light);
+        camera.add(spotlight);
 
-        //parent.add(lightHelper1);
-        parent.add(light); 
+        parent.add(spotlight); 
         parent.add(camera);
-        light.target = camera;
-
-
-    /*     var pointLight = new THREE.PointLight( 0xffffff, 1, 200 );
-        pointLight.position = camera.position;
-        parent.add(pointLight);
-        camera.add( pointLight );
-        pointLight.position = new THREE.Vector3(0,0,10); */
+        spotlight.target = camera;
       }
       
         function setRedLighting(parent) {
 
           var x;
-
-              var lightColor = 0xcccc99
+            
               var red = 0xff0000
-              var blue = 0x0000ff
-              var green = 0x00ff00
-              var redLight = new THREE.PointLight( red, 5, 100 );
-             // var greenLight = new THREE.PointLight(green, 5, 100);
-             // var blueLight = new THREE.PointLight(blue, 5, 100);
-
-              // var pos = new THREE.Vector3(x, 100, 5);
+              redLight = new THREE.PointLight( red, 5, 100 );
               redLight.position.set(-10, 80, -20);
-             // greenLight.position.set(0, 80, -20);
-             // blueLight.position.set(10, 80, -20);
+              redAmbient = new THREE.AmbientLight(0xff0000);
+
               parent.add(redLight);
-            //  parent.add(greenLight);
-            //  parent.add(blueLight);
-              parent.add( new THREE.AmbientLight(0xff0000) );
-              
-              // Make the light "visible"
-              // Create the Sphere Geometry
+              parent.add(redAmbient);
+
               const geometry = new THREE.SphereGeometry(3, 10, 10);
               const matr = new THREE.MeshPhongMaterial( {
                   color: 0x000000,     // reflectivity for diffuse and ambient light
@@ -320,29 +319,11 @@
                   specular: 0x000000,  // reflectivity for specular light
                   shininess: 100      // controls size of specular highlights
               } );
-            /*   const matg = new THREE.MeshPhongMaterial( {
-                  color: 0x000000,     // reflectivity for diffuse and ambient light
-                  emissive: green,  // emission color; a very small amount of red (in case my lighting is not working really)
-                  specular: 0x000000,  // reflectivity for specular light
-                  shininess: 50       // controls size of specular highlights
-              } );
-              const matb = new THREE.MeshPhongMaterial( {
-                  color: 0x000000,     // reflectivity for diffuse and ambient light
-                  emissive: blue,  // emission color; a very small amount of red (in case my lighting is not working really)
-                  specular: 0x000000,  // reflectivity for specular light
-                  shininess: 50       // controls size of specular highlights
-              } ); */
-              var lightRMesh = new THREE.Mesh(geometry, matr );
-              //var lightGMesh = new THREE.Mesh(geometry, matg);
-             // var lightBMesh = new THREE.Mesh(geometry, matb);
+              lightRMesh = new THREE.Mesh(geometry, matr );
 
               lightRMesh.position.set(-10, 80, 0);
-             // lightGMesh.position.set(0, 80, 0);
-             // lightBMesh.position.set(10, 80, 0);
 
               parent.add(lightRMesh);
-             // parent.add(lightGMesh);
-            //  parent.add(lightBMesh);
 
         }
 
@@ -350,70 +331,30 @@
 
     var x;
 
-    var lightColor = 0xcccc99
-    //var red = 0xff0000
     var blue = 0x0000ff
-   // var green = 0x00ff00
-   // var redLight = new THREE.PointLight( red, 5, 100 );
-   // var greenLight = new THREE.PointLight(green, 5, 100);
-    var blueLight = new THREE.PointLight(blue, 5, 100);
-
-    // var pos = new THREE.Vector3(x, 100, 5);
-   // redLight.position.set(-10, 80, -20);
-   // greenLight.position.set(0, 80, -20);
+    blueLight = new THREE.PointLight(blue, 5, 100);
     blueLight.position.set(10, 80, -20);
-
-   // parent.add(redLight);
-   // parent.add(greenLight);
+    blueAmbient = new THREE.AmbientLight(0x0000ff)
 
    parent.add(blueLight);
-    parent.add( new THREE.AmbientLight(0x0000ff) );
+    parent.add(blueAmbient);
 
-   /*if(blueLight === true){
-    }
-     else
-    {
-    parent.remove(blueLight);
-    parent.remove( new THREE.AmbientLight(0xFFFFFF) );} */
-   
-    
+
     // Make the light "visible"
     // Create the Sphere Geometry
     const geometry = new THREE.SphereGeometry(3, 10, 10);
-   /*  const matr = new THREE.MeshPhongMaterial( {
-        color: 0x000000,     // reflectivity for diffuse and ambient light
-        emissive: red,  // emission color; a very small amount of red (in case my lighting is not working really)
-        specular: 0x000000,  // reflectivity for specular light
-        shininess: 100      // controls size of specular highlights
-    } );
-    const matg = new THREE.MeshPhongMaterial( {
-        color: 0x000000,     // reflectivity for diffuse and ambient light
-        emissive: green,  // emission color; a very small amount of red (in case my lighting is not working really)
-        specular: 0x000000,  // reflectivity for specular light
-        shininess: 50       // controls size of specular highlights
-    } ); */
+  
     const matb = new THREE.MeshPhongMaterial( {
         color: 0x000000,     // reflectivity for diffuse and ambient light
         emissive: blue,  // emission color; a very small amount of red (in case my lighting is not working really)
         specular: 0x000000,  // reflectivity for specular light
         shininess: 50       // controls size of specular highlights
     } );
-    //var lightRMesh = new THREE.Mesh(geometry, matr );
-   // var lightGMesh = new THREE.Mesh(geometry, matg);
-    var lightBMesh = new THREE.Mesh(geometry, matb);
+    lightBMesh = new THREE.Mesh(geometry, matb);
 
-   // lightRMesh.position.set(-10, 80, 0);
-   // lightGMesh.position.set(0, 80, 0);
     lightBMesh.position.set(10, 80, 0);
 
-   // parent.add(lightRMesh);
-   // parent.add(lightGMesh);
-
-   parent.add(lightBMesh);
-   /*  if(blueLight === true)
-   
-    else
-    parent.remove(lightBMesh); */
+     parent.add(lightBMesh);
 
 }
 
@@ -422,56 +363,31 @@ function setGreenLighting(parent) {
 
 var x;
 
-    //var lightColor = 0xcccc99
-   // var red = 0xff0000
-   // var blue = 0x0000ff
     var green = 0x00ff00
-    //var redLight = new THREE.PointLight( red, 5, 100 );
-    var greenLight = new THREE.PointLight(green, 5, 100);
-  //  var blueLight = new THREE.PointLight(blue, 5, 100);
+    greenLight = new THREE.PointLight(green, 5, 100);
 
-    // var pos = new THREE.Vector3(x, 100, 5);
-   // redLight.position.set(-10, 80, -20);
     greenLight.position.set(0, 80, -20);
-   // blueLight.position.set(10, 80, -20);
+   greenAmbient = new THREE.AmbientLight(0x00ff00);
 
-   // parent.add(redLight);
     parent.add(greenLight);
-   // parent.add(blueLight);
-    parent.add( new THREE.AmbientLight(0x00ff00) );
+    parent.add( greenAmbient);
     
     // Make the light "visible"
     // Create the Sphere Geometry
     const geometry = new THREE.SphereGeometry(3, 10, 10);
-/*     const matr = new THREE.MeshPhongMaterial( {
-        color: 0x000000,     // reflectivity for diffuse and ambient light
-        emissive: red,  // emission color; a very small amount of red (in case my lighting is not working really)
-        specular: 0x000000,  // reflectivity for specular light
-        shininess: 100      // controls size of specular highlights
-    } ); */
+
     const matg = new THREE.MeshPhongMaterial( {
         color: 0x000000,     // reflectivity for diffuse and ambient light
         emissive: green,  // emission color; a very small amount of red (in case my lighting is not working really)
         specular: 0x000000,  // reflectivity for specular light
         shininess: 50       // controls size of specular highlights
     } );
-   /*  const matb = new THREE.MeshPhongMaterial( {
-        color: 0x000000,     // reflectivity for diffuse and ambient light
-        emissive: blue,  // emission color; a very small amount of red (in case my lighting is not working really)
-        specular: 0x000000,  // reflectivity for specular light
-        shininess: 50       // controls size of specular highlights
-    } ); */
-   // var lightRMesh = new THREE.Mesh(geometry, matr );
-    var lightGMesh = new THREE.Mesh(geometry, matg);
-   // var lightBMesh = new THREE.Mesh(geometry, matb);
 
-   // lightRMesh.position.set(-10, 80, 0);
+    lightGMesh = new THREE.Mesh(geometry, matg);
+
     lightGMesh.position.set(0, 80, 0);
-   // lightBMesh.position.set(10, 80, 0);
 
-   // parent.add(lightRMesh);
     parent.add(lightGMesh);
-   // parent.add(lightBMesh);
 
 }
 
@@ -480,55 +396,29 @@ function setLampLighting(parent) {
     var x;
 
     var lightColor = 0xcccc99
-   // var red = 0xff0000
-   // var blue = 0x0000ff
-    //var green = 0x00ff00
-    //var redLight = new THREE.PointLight( red, 5, 100 );
-    var light = new THREE.PointLight(lightColor, 5, 75);
-  //  var blueLight = new THREE.PointLight(blue, 5, 100);
-
-    // var pos = new THREE.Vector3(x, 100, 5);
-   // redLight.position.set(-10, 80, -20);
+    light = new THREE.PointLight(lightColor, 5, 75);
     light.position.set(5, 18, 5);
-   // blueLight.position.set(10, 80, -20);
 
-   // parent.add(redLight);
+    lightAmbient = new THREE.AmbientLight(0xffffff);
+
     parent.add(light);
-   // parent.add(blueLight);
-    parent.add( new THREE.AmbientLight(0xffffff) );
-    
+    parent.add(lightAmbient);
+
     // Make the light "visible"
     // Create the Sphere Geometry
     const geometry = new THREE.SphereGeometry(1, 10, 10);
-/*     const matr = new THREE.MeshPhongMaterial( {
-        color: 0x000000,     // reflectivity for diffuse and ambient light
-        emissive: red,  // emission color; a very small amount of red (in case my lighting is not working really)
-        specular: 0x000000,  // reflectivity for specular light
-        shininess: 100      // controls size of specular highlights
-    } ); */
+
     const mat = new THREE.MeshPhongMaterial( {
         color: 0x000000,     // reflectivity for diffuse and ambient light
         emissive: lightColor,  // emission color; a very small amount of red (in case my lighting is not working really)
         specular: 0x000000,  // reflectivity for specular light
         shininess: 50       // controls size of specular highlights
     } );
-   /*  const matb = new THREE.MeshPhongMaterial( {
-        color: 0x000000,     // reflectivity for diffuse and ambient light
-        emissive: blue,  // emission color; a very small amount of red (in case my lighting is not working really)
-        specular: 0x000000,  // reflectivity for specular light
-        shininess: 50       // controls size of specular highlights
-    } ); */
-   // var lightRMesh = new THREE.Mesh(geometry, matr );
-    var lightMesh = new THREE.Mesh(geometry, mat);
-   // var lightBMesh = new THREE.Mesh(geometry, matb);
+    lightMesh = new THREE.Mesh(geometry, mat);
 
-   // lightRMesh.position.set(-10, 80, 0);
     lightMesh.position.set(5, 18, 5);
-   // lightBMesh.position.set(10, 80, 0);
 
-   // parent.add(lightRMesh);
     parent.add(lightMesh);
-   // parent.add(lightBMesh);
 
 }
 
@@ -621,8 +511,11 @@ function setLampLighting(parent) {
             const picture = new THREE.Mesh( pictureGeometry, pictureMaterial);
             picture.position.set(100, 50, 0);
 
-            parent.add( pictureFrame );
-            parent.add( picture )
+            if(blueLightFlag == false && redLightFlag == false && greenLightFlag == false)
+            {
+                parent.add( pictureFrame );
+                parent.add( picture )
+            }
 
        }
 
