@@ -365,16 +365,17 @@
 }
 
         function headlamp(parent) {
-            const spotlight = new THREE.SpotLight(0xffffff, 1);
+            const spotlight = new THREE.SpotLight(0xffffff, 1, 0, Math.PI / 6, 0.5);
 
-            spotlight.angle = Math.PI / 6;
-            spotlight.position.copy(camera.position);
+           // spotlight.angle = Math.PI / 6;
+            //spotlight.position.copy(camera.position);
 
             camera.add(spotlight);
+            camera.add(spotlight.target);
 
-            parent.add(spotlight);
-            parent.add(camera);
-            spotlight.target = camera;
+           // parent.add(spotlight);
+            //parent.add(camera);
+            spotlight.target.position.set(0,0,-5);
         }
         function setRedLighting(parent) {
 
