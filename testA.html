@@ -152,6 +152,7 @@
             document.body.appendChild(renderer.domElement);
             window.addEventListener('resize', onWindowResize);
 
+
         }
 
 
@@ -165,21 +166,25 @@
                 switch (event.code) {
                     case 'ArrowUp':
                     case 'KeyW':
+                    WallAvoidance() // pushes the player back after reaching a certain boundary
                         moveForward = true;
                         break;
 
                     case 'ArrowLeft':
                     case 'KeyA':
+                    WallAvoidance() // pushes the player back after reaching a certain boundary
                         moveLeft = true;
                         break;
 
                     case 'ArrowDown':
                     case 'KeyS':
+                    WallAvoidance() // pushes the player back after reaching a certain boundary
                         moveBackward = true;
                         break;
 
                     case 'ArrowRight':
                     case 'KeyD':
+                    WallAvoidance() // pushes the player back after reaching a certain boundary
                         moveRight = true;
                         break;
 
@@ -337,6 +342,20 @@
                 instructions.style.display = '';
             });
         }
+        function WallAvoidance() {
+          if (camera.position.z >= 57) {
+            camera.position.z = 57;
+                }
+          if (camera.position.z <= -57) {
+            camera.position.z = -57;
+                }
+          if (camera.position.x >= 57) {
+            camera.position.x = 57;
+                }
+          if (camera.position.x <= -57) {
+            camera.position.x = -57;
+                }
+}
 
         function headlamp(parent) {
             const spotlight = new THREE.SpotLight(0xffffff, 1);
