@@ -84,7 +84,7 @@
         let blueLight, lightBMesh, blueAmbient; //blue light
         let greenLight, lightGMesh, greenAmbient; //green light
         // How much more the snowman is tilting each iteration
-        let floorMesh, floorMesh1, floorMesh2, floorMesh3, floorMesh4, floorMesh5, floorMesh6, floorMesh7, floorMesh8, floorMesh9;
+        let ceilingMesh, floorMesh, floorMesh1, floorMesh2, floorMesh3, floorMesh4, floorMesh5, floorMesh6, floorMesh7, floorMesh8, floorMesh9;
         const FLOOR_WIDTH = 200;  // The dimensions of the floor
         const FLOOR_DEPTH = 200;
         const WALL_HEIGHT = 200;
@@ -272,7 +272,7 @@
                           }
                           break;
 
-                        case 'Digit6':
+                        case 'Digit7':
                         if (ball2 = true){
                           scene.remove(ball2);
                           ball2 = false;
@@ -378,10 +378,6 @@
 
 
         }
-
-
-
-
 
         function setBlueLighting(parent) {
 
@@ -629,6 +625,7 @@
             const marbleTexture = new THREE.TextureLoader().load('textures/white-marble.jpg');
             const floorTexture = new THREE.TextureLoader().load('textures/floor.jpg');
             const wallTexture = new THREE.TextureLoader().load('textures/wall.jpg');
+            const ceilingTexture = new THREE.TextureLoader().load('textures/popcorn.jpg');
             marbleTexture.repeat = new THREE.Vector2(FLOOR_WIDTH / 10, FLOOR_DEPTH / 10);  // Repeat the texture in both the width and depth directions
             marbleTexture.wrapS = THREE.MirroredRepeatWrapping;  // When repeating, wrapped but alternate by mirroring (avoids edges)
             marbleTexture.wrapT = THREE.RepeatWrapping;  // Did not use mirror wrapping here, so you can look at the seam that is created. (Perhaps you want it, perhaps not!)
@@ -653,8 +650,19 @@
                 shininess: 20,      // controls size of specular highlights
                 map: wallTexture
             });
+            const mat2 = new THREE.MeshPhongMaterial({
+                color: 0x808080,     // reflectivity for diffuse and ambient light
+                emissive: 0x010101,  // emission color; a very small amount of red (in case my lighting is not working really)
+                // specular: 0x101010,  // reflectivity for specular light
+                shininess: 20,      // controls size of specular highlights
+                map: ceilingTexture
+            });
             floorMesh = new THREE.Mesh(floor, mat);
+            ceilingMesh = new THREE.Mesh(floor, mat2);
             floorMesh.rotation.x = -Math.PI / 2;   // Orient it on the floor
+            ceilingMesh.rotation.x = Math.PI/2;
+            ceilingMesh.position.y = 120;
+
 
             floorMesh1 = new THREE.Mesh(floor1, mat1);
             floorMesh2 = new THREE.Mesh(floor1, mat1);
@@ -666,6 +674,7 @@
             floorMesh4.rotation.y = THREE.Math.degToRad(180);
 
             parent.add(floorMesh);
+            parent.add(ceilingMesh);
             parent.add(floorMesh1);
             parent.add(floorMesh2);
             parent.add(floorMesh3);
