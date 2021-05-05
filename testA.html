@@ -47,7 +47,7 @@
 <body>
     <!-- See main.css for #info and #overlay for the markup attributes for it -->
     <div id="info">Interactive Room</div>
-    <!-- <div id="overlay">This is an overlay example.</div>  Uncomment if you want to see an overlay text --> 
+    <!-- <div id="overlay">This is an overlay example.</div>  Uncomment if you want to see an overlay text -->
     <div id="blocker">
       <div id="instructions">
         <span style="font-size:30px">Click to move about</span>
@@ -101,6 +101,8 @@
         let greenLightFlag = false;
         let lampLightFlag = false;
         let headlampLightFlag = false;
+        let animateBall1 = false; //not animated at first
+        let animateBall2 = false;
         let moveForward = false;
         let moveBackward = false;
         let moveLeft = false;
@@ -109,6 +111,8 @@
 
         let moveDirection = new THREE.Vector3();   // The direction to move in camera's view (based on keyboard input)
         let moveSpeed = 50; // Feet per second to move (average walking speed is 4.6 ft/sec)
+
+
 
         init();
         animate();
@@ -192,7 +196,7 @@
 
                     case 'KeyH':
                         camera.position.z=100;
-                        camera.position.y =20; 
+                        camera.position.y =20;
                         break;
 
                     case 'Digit1':
@@ -272,28 +276,12 @@
 
                         //should control the balls
                         case 'Digit6':
-                          if(ball1 == true){
-                            scene.remove(ball1);
-                            ball1 = false
-                          }
-                          else {
-                            ball1 = true;
-                            ball1(scene);
-
-                          }
+                        animateBall1 = !animateBall1;
                           break;
 
                         case 'Digit7':
-                        if (ball2 = true){
-                          scene.remove(ball2);
-                          ball2 = false;
-                        }
-                        else {
-                          ball2= true;
-                          ball2(scene);
-                        }
-
-
+                        animateBall2 = !animateBall2;
+                          break;
                 }
             };
 
