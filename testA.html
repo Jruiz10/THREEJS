@@ -55,6 +55,7 @@
         Move: WASD<br/>
         Look: MOUSE<br />
         Lights: 1 - Red, 2 - Green, 3 - Blue, 4 - Lamp, 5 - Miner's Light (Step forward to activate)
+        Home: Press 'H' to move back to original position
       </div>
     </div>
 
@@ -187,6 +188,11 @@
                     case 'KeyD':
                     WallAvoidance() // pushes the player back after reaching a certain boundary
                         moveRight = true;
+                        break;
+
+                    case 'KeyH':
+                        camera.position.z=100;
+                        camera.position.y =20; 
                         break;
 
                     case 'Digit1':
